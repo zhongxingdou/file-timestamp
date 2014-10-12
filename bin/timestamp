@@ -6,7 +6,7 @@ require 'json'
 require 'optparse'
 require 'digest/md5' 
 
-VERSION = "1.6"
+VERSION = "1.6.1"
 
 def collectFileMtime dir, option
   exclude_ext = option[:exclude_ext]
@@ -64,18 +64,19 @@ begin
   OptionParser.new do |opts|
       opts.banner = <<-EOF
 file-timestamp #{VERSION}
+generate file timestamp with JSON format
 Usage:
-timestamp [dir] 按目录树结构输出指定目录下的所有指定类型文件的时间戳JSON，默认输出当前目录
+timestamp [dir] 
     EOF
-    opts.on('--pretty', "格式化输出") { option[:pretty] = true }
-    opts.on('--template <template>', '指定模板文本，内容占位符为#output#，如--template ";var json=#output#;"') { |template| option[:template] = template}
-    opts.on("--include-ext x,y,z", Array, "要包含的文件扩展名") { |include_ext| option[:include_ext].concat include_ext }
-    opts.on("--exclude-ext x,y,z", Array, "要排除的文件扩展名") { |exclude_ext| option[:exclude_ext].concat exclude_ext }
-    opts.on("--exclude-dir x,y,z", Array, "要排除的目录，默认--exclude-dir .svn,.git") { |exclude_dir| option[:exclude_dir].concat exclude_dir }
-    opts.on("--seajs", "使用默认的seajs模板"){option[:template] = ";define('timestamp', function(require, exports, module) {\n module.exports =#output#\n});" }
-    opts.on("--md5 <length>", "MD5 checksum代替时间戳"){ |length| option[:md5] = length.to_i }
-    opts.on("--time_format <format>", '时间戳的格式化字符串，默认为%Y%m%d%H%M%S'){ |format| option[:time_format] = format } 
-    opts.on("--version", "显示版本"){option[:version] = true}
+    opts.on('--pretty', "format output") { option[:pretty] = true }
+    opts.on('--template <template>', 'content template，using #output# identify content，e.g. --template ";var json=#output#;"') { |template| option[:template] = template}
+    opts.on("--include-ext x,y,z", Array, "include file extentions") { |include_ext| option[:include_ext].concat include_ext }
+    opts.on("--exclude-ext x,y,z", Array, "exclude file extentions") { |exclude_ext| option[:exclude_ext].concat exclude_ext }
+    opts.on("--exclude-dir x,y,z", Array, "exclude directories, default is .svn,.git") { |exclude_dir| option[:exclude_dir].concat exclude_dir }
+    opts.on("--seajs", "use seajs template"){option[:template] = ";define('timestamp', function(require, exports, module) {\n module.exports =#output#\n});" }
+    opts.on("--md5 <length>", "use MD5 checksum instead of datetime"){ |length| option[:md5] = length.to_i }
+    opts.on("--time_format <format>", 'timestamp formatter string, default is %Y%m%d%H%M%S'){ |format| option[:time_format] = format } 
+    opts.on("--version", "show version"){option[:version] = true}
 
   end.parse!
 
@@ -97,7 +98,7 @@ timestamp [dir] 按目录树结构输出指定目录下的所有指定类型文�
     end
   end
 rescue OptionParser::InvalidOption => e
-  puts "参数非法, 查看帮助请使用: #$0 --help "
+  puts "illegal option, show help: #$0 --help "
 rescue Exception => e
   puts e.to_s
 end
