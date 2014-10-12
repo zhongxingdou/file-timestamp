@@ -4,25 +4,28 @@ generate file timestamp with JSON format
 gem install file-timestamp
 ## Usage
 We assumes you have a directory like below
-
- a.js
- b.css
- resources
-   d.js
-   e.css
-
+<pre>
+a.js
+b.css
+resources
+  d.js
+  e.css
+</pre>
+type command in you terminal
 ```bash
 timestamp . --pretty
 ```
-=>
- {
-   "a.js": "20141012190557",
-   "b.css": "20141012190600",
-   "resources": {
-     "d.js": "20141012190620",
-     "e.css": "20141012190622"
-   }
- }
+will output
+```
+{
+  "a.js": "20141012190557",
+  "b.css": "20141012190600",
+  "resources": {
+    "d.js": "20141012190620",
+    "e.css": "20141012190622"
+  }
+}
+```
 
 ## command line options
         --pretty                     格式化输出
