@@ -11,7 +11,7 @@ We assumes you have a directory like below
     ┣--d.js
     ┗--e.css
 </pre>
-type command in you terminal
+type command in your terminal
 ```bash
 timestamp . --pretty
 ```
