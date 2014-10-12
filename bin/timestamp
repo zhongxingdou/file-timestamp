@@ -69,13 +69,13 @@ Usage:
 timestamp [dir] 
     EOF
     opts.on('--pretty', "format output") { option[:pretty] = true }
-    opts.on('--template <template>', 'content template，using #output# identify content，e.g. --template ";var json=#output#;"') { |template| option[:template] = template}
-    opts.on("--include-ext x,y,z", Array, "include file extentions") { |include_ext| option[:include_ext].concat include_ext }
-    opts.on("--exclude-ext x,y,z", Array, "exclude file extentions") { |exclude_ext| option[:exclude_ext].concat exclude_ext }
-    opts.on("--exclude-dir x,y,z", Array, "exclude directories, default is .svn,.git") { |exclude_dir| option[:exclude_dir].concat exclude_dir }
+    opts.on('--template <template>', 'content template，use #output# identify content，e.g. --template ";var json=#output#;"') { |template| option[:template] = template}
+    opts.on("--include-ext x,y,z", Array, "include file extension name") { |include_ext| option[:include_ext].concat include_ext }
+    opts.on("--exclude-ext x,y,z", Array, "exclude file extension name") { |exclude_ext| option[:exclude_ext].concat exclude_ext }
+    opts.on("--exclude-dir x,y,z", Array, "exclude directory, default is .svn,.git") { |exclude_dir| option[:exclude_dir].concat exclude_dir }
     opts.on("--seajs", "use seajs template"){option[:template] = ";define('timestamp', function(require, exports, module) {\n module.exports =#output#\n});" }
     opts.on("--md5 <length>", "use MD5 checksum instead of datetime"){ |length| option[:md5] = length.to_i }
-    opts.on("--time_format <format>", 'timestamp formatter string, default is %Y%m%d%H%M%S'){ |format| option[:time_format] = format } 
+    opts.on("--time_format <format>", 'timestamp format string, default is %Y%m%d%H%M%S'){ |format| option[:time_format] = format } 
     opts.on("--version", "show version"){option[:version] = true}
 
   end.parse!
