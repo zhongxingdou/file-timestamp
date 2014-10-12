@@ -1,0 +1,103 @@
+#!/usr/bin/env ruby
+# encoding: utf-8
+
+require 'rubygems'
+require 'json'
+require 'optparse'
+require 'digest/md5' 
+
+VERSION = "1.6"
+
+def collectFileMtime dir, option
+  exclude_ext = option[:exclude_ext]
+  exclude_dir = option[:exclude_dir]
+  include_ext = option[:include_ext]
+  md5 = option[:md5]
+  formatter = option[:time_format]
+
+  # debugger
+  map = {}
+  full_dir = File.expand_path dir
+  Dir.chdir full_dir
+  is_empty = true
+  Dir.foreach "." do |file|
+    if File.directory? file
+      unless exclude_dir.to_s.include? file
+        pwd = Dir.pwd
+        submap = collectFileMtime file, option
+        is_empty = false unless submap.nil? or submap.empty?
+        unless submap.nil?
+          map[file] = submap
+        end
+        Dir.chdir pwd
+      end
+    else
+      ext = File.extname file
+      if include_ext.length == 0 or include_ext.to_s.include?(ext)
+        unless exclude_ext.to_s.include? ext
+          mtime = File.mtime file
+          if md5 > 0
+            map[file] = Digest::MD5.hexdigest(mtime.to_s)[0...md5];
+          else
+            map[file] = mtime.strftime formatter
+          end
+          is_empty = false
+        end
+      end
+    end
+  end
+
+  return is_empty ? nil : map
+end
+
+option = {
+  :pretty => false,
+  :template => "#output#",
+  :exclude_ext => [".DS_Store", ".swp"],
+  :include_ext => [],
+  :exclude_dir => [".","..",".svn",".git"],
+  :md5 => 0,
+  :time_format => "%Y%m%d%H%M%S"
+}
+
+begin
+  OptionParser.new do |opts|
+      opts.banner = <<-EOF
+file-timestamp #{VERSION}
+Usage:
+timestamp [dir] 按目录树结构输出指定目录下的所有指定类型文件的时间戳JSON，默认输出当前目录
+    EOF
+    opts.on('--pretty', "格式化输出") { option[:pretty] = true }
+    opts.on('--template <template>', '指定模板文本，内容占位符为#output#，如--template ";var json=#output#;"') { |template| option[:template] = template}
+    opts.on("--include-ext x,y,z", Array, "要包含的文件扩展名") { |include_ext| option[:include_ext].concat include_ext }
+    opts.on("--exclude-ext x,y,z", Array, "要排除的文件扩展名") { |exclude_ext| option[:exclude_ext].concat exclude_ext }
+    opts.on("--exclude-dir x,y,z", Array, "要排除的目录，默认--exclude-dir .svn,.git") { |exclude_dir| option[:exclude_dir].concat exclude_dir }
+    opts.on("--seajs", "使用默认的seajs模板"){option[:template] = ";define('timestamp', function(require, exports, module) {\n module.exports =#output#\n});" }
+    opts.on("--md5 <length>", "MD5 checksum代替时间戳"){ |length| option[:md5] = length.to_i }
+    opts.on("--time_format <format>", '时间戳的格式化字符串，默认为%Y%m%d%H%M%S'){ |format| option[:time_format] = format } 
+    opts.on("--version", "显示版本"){option[:version] = true}
+
+  end.parse!
+
+  if option[:version]
+    puts VERSION
+  else
+    tree = collectFileMtime(ARGV[0] || ".", option.clone)
+
+    if option[:pretty]
+      output = JSON.pretty_generate(tree)
+    else
+      output = tree.to_json
+    end
+
+    if option[:template] != "#output#"
+      puts option[:template].sub("#output#",output)
+    else
+      puts output
+    end
+  end
+rescue OptionParser::InvalidOption => e
+  puts "参数非法, 查看帮助请使用: #$0 --help "
+rescue Exception => e
+  puts e.to_s
+end
