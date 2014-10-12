@@ -5,11 +5,11 @@ gem install file-timestamp
 ## Usage
 We assumes you have a directory like below
 <pre>
-a.js
-b.css
-resources
-  d.js
-  e.css
+┣-a.js
+┣-b.css
+┗-resources
+    ┣--d.js
+    ┗--e.css
 </pre>
 type command in you terminal
 ```bash
